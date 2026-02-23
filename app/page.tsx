@@ -28,10 +28,10 @@ export default function LandingPage() {
             Algoritmos inteligentes que diseñan tu dieta perfecta basada en tus metas y lo que tienes en tu nevera.
           </p>
           <div className="flex justify-center gap-4">
-             <Link href="/auth" className="group relative px-8 py-4 bg-slate-900 text-white rounded-full font-bold text-lg overflow-hidden flex items-center gap-3 shadow-2xl hover:scale-105 transition-transform">
-                <span>Crear mi Plan</span>
-                <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-             </Link>
+            <Link href="/auth" className="group relative px-8 py-4 bg-slate-900 text-white rounded-full font-bold text-lg overflow-hidden flex items-center gap-3 shadow-2xl hover:scale-105 transition-transform">
+              <span>Crear mi Plan</span>
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>
