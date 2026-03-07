@@ -9,12 +9,10 @@ import {
   Scale,
 } from "lucide-react";
 
-import React from "react";
-// CAMBIO OBLIGATORIO: Next.js usa 'next/link', no 'react-router-dom'
-import Link from "next/link"; 
-import { FloatingDock } from "@/components/ui/FloatingDock"; // Asegúrate que la ruta coincida con tu archivo
+import  Link  from "next/link";
+import { FloatingDock } from "@/components/ui/floating-dock";
 import {
-  IconBrandGithub,
+  IconBrandGithub, // Dejé solo este porque es el único que usas
 } from "@tabler/icons-react";
 
 type FooterProps = {
@@ -195,7 +193,6 @@ export default function Footer({
                     theme === "dark" ? "text-slate-200/70" : "text-slate-600"
                   }
                 />
-                {/* CAMBIO: 'to' por 'href' para Next.js */}
                 <Link href="/politica-privacidad" className="hover:underline">
                   Política de privacidad
                 </Link>
@@ -207,7 +204,6 @@ export default function Footer({
                     theme === "dark" ? "text-slate-200/70" : "text-slate-600"
                   }
                 />
-                 {/* CAMBIO: 'to' por 'href' para Next.js */}
                 <Link href="/centroayuda" className="hover:underline">
                   Centro de ayuda
                 </Link>
