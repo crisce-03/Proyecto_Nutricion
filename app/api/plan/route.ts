@@ -1,24 +1,20 @@
 import { NextRequest } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseServer";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 
 
 export async function POST(req: NextRequest) {
 
     try{
-        const { id_Usuario,fecha, momento } = await req.json();
+        const { id_usuario,fecha, momento } = await req.json();
 
-        if(!id_Usuario ){
+        if(!id_usuario ){
         return Response.json({error: "Datos nesecarios"},{status:400});
         }
 
         const {data,error} = await supabase.from("PlanNutricional").insert({
-            id_Usuario,
+            id_usuario,
             fecha,
             momento
         }).select();
@@ -38,16 +34,37 @@ export async function POST(req: NextRequest) {
     
 }
 
-export async function GET(req: NextRequest) {
+
+export async function GET(req: NextRequest ) {
 
     try{
-        const { id } = await req.json();
 
-        if(!id ){
-        return Response.json({error: "Id Nesecario"},{status:400});
-        }
+        const {searchParams}= new URL(req.url);
 
-        const {data,error} = await supabase.from("PlanNutricional").select().eq("id",id);
+        const userId=searchParams.get("userId");
+        const fecha =searchParams.get("fecha");
+
+
+
+        if (!userId || !fecha) {
+      return Response.json(
+        { error: "userId y fecha son necesarios" },
+        { status: 400 }
+      );
+    }
+
+        const { data, error } = await supabase
+            .from("PlanNutricional")
+            .select(`
+                id,
+                momento,
+                DetalleAlimentos (
+                nombre,
+                cantidad
+                )
+            `)
+            .eq("id_usuario", userId)
+            .eq("fecha", fecha);
 
         if(error){
             return Response.json(
@@ -63,3 +80,7 @@ export async function GET(req: NextRequest) {
     }
     
 }
+
+
+
+

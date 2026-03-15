@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -5,6 +6,10 @@ const supabase = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+=======
+import { NextRequest } from "next/server";
+import { supabase } from "@/lib/supabaseServer";
+>>>>>>> 51a5298b9446d188102b70692de39b9a6e517437
 
 export async function GET(){
     try{
