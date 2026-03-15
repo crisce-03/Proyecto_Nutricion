@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import MiniCalendar from "@/components/dashboard/MiniCalendar";
 import { 
@@ -21,6 +21,32 @@ export default function NutritionPage() {
   const [newFoodName, setNewFoodName] = useState("");
   const [newFoodCal, setNewFoodCal] = useState("");
   const [newFoodPortion, setNewFoodPortion] = useState("");
+
+  const [query, setQuery] = useState("");
+  const [foods, setFoods] = useState<any[]>([]);
+
+ useEffect(() => {
+  if (!query) return;
+
+  const searchFoods = async () => {
+    try {
+      const res = await fetch("/api/foods/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const data = await res.json();
+      setFoods(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  searchFoods();
+}, [query]);
 
   const [meals, setMeals] = useState<{ [key in MealSection]: FoodItem[] }>({
     desayuno: [
@@ -60,6 +86,8 @@ export default function NutritionPage() {
         setIsSearchOpen(false);
     }
   };
+
+  fetch("http://localhost:3000/api/foods/search/");
 
   const handleCreateFood = (e: React.FormEvent) => {
       e.preventDefault();
@@ -153,7 +181,7 @@ export default function NutritionPage() {
                                   </p>
                               </div>
                           </div>
-                          <button onClick={() => openSearch(mealType)} className="h-10 w-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-teal-600 hover:border-teal-500 transition-all shadow-sm">
+                          <button onClick={() => openSearch(mealType)} className="h-10 w-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-teal-600 hover:border-teal-500 transition-all shadow-sm"  onChange={setQuery=>(e.target.value)}>
                               <Plus size={20} />
                           </button>
                       </div>
@@ -327,50 +355,77 @@ export default function NutritionPage() {
                       </form>
                   ) : (
                       // --- MODO BUSCADOR ---
-                      <>
-                        <div className="p-4">
-                            <div className="relative">
-                                <Search className="absolute left-4 top-3.5 text-slate-400" size={20} />
-                                <input 
-                                    autoFocus 
-                                    type="text" 
-                                    placeholder="Ej. Pechuga de pollo, Manzana..." 
-                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-lg"
-                                />
-                            </div>
-                        </div>
+                    // --- MODO BUSCADOR ---
+<>
+  <div className="p-4">
+    <div className="relative">
+      <Search className="absolute left-4 top-3.5 text-slate-400" size={20} />
+      <input
+        autoFocus
+        type="text"
+        placeholder="Ej. Pechuga de pollo, Manzana..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-lg"
+      />
+    </div>
+  </div>
 
-                        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Resultados frecuentes</p>
-                            {foodDatabase.map((food) => (
-                                <div key={food.id} className="flex justify-between items-center p-4 border border-slate-100 rounded-2xl hover:border-teal-500 hover:bg-teal-50 cursor-pointer transition-all group" onClick={() => addFood(food)}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center text-xl shadow-sm border border-slate-100">
-                                            🥗
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-slate-800">{food.name}</p>
-                                            <p className="text-xs text-slate-500">{food.portion} • {food.cal} kcal</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-8 w-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 group-hover:bg-teal-500 group-hover:text-white group-hover:border-teal-500 transition-all">
-                                        <Plus size={16} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+  <div className="flex-1 overflow-y-auto p-4 space-y-2">
+    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+      Resultados
+    </p>
 
-                        <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs text-slate-500">
-                            <span>¿No encuentras el alimento?</span>
-                            {/* BOTÓN FUNCIONAL PARA CAMBIAR AL MODO CREAR */}
-                            <button 
-                                onClick={() => setIsCreatingFood(true)}
-                                className="text-teal-600 font-bold hover:underline flex items-center gap-1"
-                            >
-                                <Plus size={14} /> Crear nuevo alimento
-                            </button>
-                        </div>
-                      </>
+    {foods.length === 0 ? (
+      <div className="text-center text-slate-400 py-10">
+        <p className="text-sm">Busca un alimento para ver resultados</p>
+      </div>
+    ) : (
+      foods.map((food: any) => (
+        <div
+          key={food.food_id}
+          className="flex justify-between items-center p-4 border border-slate-100 rounded-2xl hover:border-teal-500 hover:bg-teal-50 cursor-pointer transition-all group"
+          onClick={() =>
+            addFood({
+              id: Date.now(),
+              name: food.food_name,
+              cal: 0,
+              portion: food.food_description,
+            })
+          }
+        >
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center text-xl shadow-sm border border-slate-100">
+              🥗
+            </div>
+
+            <div>
+              <p className="font-bold text-slate-800">{food.food_name}</p>
+              <p className="text-xs text-slate-500">
+                {food.food_description}
+              </p>
+            </div>
+          </div>
+
+          <div className="h-8 w-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 group-hover:bg-teal-500 group-hover:text-white group-hover:border-teal-500 transition-all">
+            <Plus size={16} />
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+
+  <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs text-slate-500">
+    <span>¿No encuentras el alimento?</span>
+
+    <button
+      onClick={() => setIsCreatingFood(true)}
+      className="text-teal-600 font-bold hover:underline flex items-center gap-1"
+    >
+      <Plus size={14} /> Crear nuevo alimento
+    </button>
+  </div>
+</>
                   )}
               </div>
           </div>

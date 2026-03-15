@@ -2,9 +2,48 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Mail, Lock, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AuthPage() {
+
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
+  const [email,setEmail] = useState("");
+  const [password,setPassword]= useState("");
+  const [name,setName] = useState("");
+
+  async function handleAuth(e: React.FormEvent<HTMLFormElement>){
+  e.preventDefault();
+
+  if(isLogin){
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    router.push("/dashboard");
+
+  }else{
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      name
+    });
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    router.push("/dashboard");
+  }
+}
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
@@ -38,13 +77,19 @@ export default function AuthPage() {
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleAuth}>
             {!isLogin && (
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Nombre Completo</label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 text-slate-400" size={20} />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all" placeholder="Hector Garcia" />
+                 <input
+                   type="text"
+                   value={name}
+                   onChange={(e)=>setName(e.target.value)}
+                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
+                   placeholder="Hector Garcia"
+                  />
                 </div>
               </div>
             )}
@@ -53,7 +98,7 @@ export default function AuthPage() {
               <label className="text-sm font-medium text-slate-700">Correo Electrónico</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 text-slate-400" size={20} />
-                <input type="email" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all" placeholder="hola@crgsolutions.com" />
+                <input type="email" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all" placeholder="hola@crgsolutions.com" value={email} onChange={(e)=>setEmail(e.target.value)}/>
               </div>
             </div>
 
@@ -61,13 +106,22 @@ export default function AuthPage() {
               <label className="text-sm font-medium text-slate-700">Contraseña</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 text-slate-400" size={20} />
-                <input type="password" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all" placeholder="••••••••" />
+                 <input
+                   type="password"
+                   value={password}
+                   onChange={(e)=>setPassword(e.target.value)}
+                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
+                   placeholder="••••••••"
+                  />
               </div>
             </div>
 
-            <Link href="/dashboard" className="block w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/30 text-center transition-all hover:scale-[1.02]">
-              {isLogin ? "Ingresar al Panel" : "Comenzar mi Plan"}
-            </Link>
+           <button
+             type="submit"
+             className="block w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/30 text-center  transition-all hover:scale-[1.02]"
+             >
+             {isLogin ? "Ingresar al Panel" : "Comenzar mi Plan"}
+            </button>
           </form>
         </div>
       </div>
