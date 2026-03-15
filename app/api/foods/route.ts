@@ -1,12 +1,26 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+export async function GET(){
+    try{
+        const {data, error} = await supabase.from("DetalleAlimentos").select("*");
 
+        if (error){
+            return Response.json({error: error.message}, {status: 500});
+        }
+
+        return Response.json(data, {status: 200});
+
+    }catch(error){
+        console.error(error);
+        return Response.json({error: "Server error"}, {status: 500});
+    }
+}
 
 export async function POST(req: NextRequest) {
 
@@ -32,11 +46,10 @@ export async function POST(req: NextRequest) {
             )
         }
 
-     return Response.json(data);
+        return Response.json(data);
     }catch(error){
         console.error(error);
         return Response.json({ error: "Server error" }, { status: 500 });
     }
 
-    
 }
